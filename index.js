@@ -24,7 +24,7 @@ client.on("message", (message) => {
     let condition;
     let conditionTwo;
     let randomName;
-    if (message.content.startsWith(prefix + "changeName")) {
+    if (message.content.startsWith(prefix + "renombrar")) {
         do {
             if (letraNombre = null) {
                 condition = 0;
@@ -49,7 +49,7 @@ client.on("message", (message) => {
 
     }
 
-    if (message.content.startsWith(prefix + "GoTName")) {
+    if (message.content.startsWith(prefix + "got")) {
         if (letraNombre = null) {
             return message.channel.send("No hay nombres en nuestra base de datos que empiecen por esa letra, por favor cambieselo o pongase otra letra");
         } else {
@@ -72,6 +72,14 @@ client.on("message", (message) => {
             }
             return message.member.setNickname(randomName.substr(0,randomName.indexOf(' ')) + " " + GoT);
         }
+    }
+
+    if (message.content.startsWith(prefix + "help")) {
+        return message.channel.send("Lista de comandos:" +
+        "\n !hola: Saludas al bot y este te saluda" +
+        "\n !adios: Te despides del bot y este te despide" +
+        "\n !renombrar: El bot te cambia el nombre y apellidos por uno aleatorio" +
+        "\n !got: El bot te cambia el nombre por un aleatorio y te asigna una casa principal de juego de tronos");
     }
 
     if (message.content.startsWith(prefix)) {
