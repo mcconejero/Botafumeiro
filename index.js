@@ -2,53 +2,34 @@ const Discord = require("discord.js");
 const client = new Discord.Client();
 const config = require("./config.json");
 const faker = require('faker');
-let prefix = config.prefix;
+const dialogflow = require('dialogflow');
 
-client.on("message", (message) => {
+const projectId = 'newagent-604f6';
 
-    if (!message.content.startsWith(prefix)) return;
-    if (message.author.bot) return;
+const sessionClient = new dialogflow.SessionsClient({
+    keyFilename: './key.json'
+});
 
-    if (message.content.startsWith(prefix + "hola")) {
-        return message.channel.send("Que diseh su pollita");
-    }
+function getIntent(text, client, member) {
+    const sessionPath = sessionClient.sessionPath(projectId, client.id);
 
-    if (message.content.startsWith(prefix + "adios")) {
-        return message.channel.send("Po llevate esta 8==D");
-    }
+    const request = {
+        session: sessionPath,
+        queryInput: {
+            text: {
+                text,
+                languageCode: 'es-ES',
+            },
+        },
+    };    
 
-    let condition;
-    let conditionTwo;
-    let randomName;
-    if (message.content.startsWith(prefix + "renombrar")) {
-        do {
-            if (letraNombre = null) {
-                condition = 0;
-                conditionTwo = 0;
-            } else {
-                randomName = faker.name.findName();
-                let letraNombreRandom = randomName.substr(0, 1);
-                let letraNombre = message.author.username.substr(0, 1);
-                if (letraNombre == letraNombreRandom && letraNombre != null && letraNombreRandom != null) {
-                    condition = 0;
-                } else {
-                    condition = 1;
-                }
-            }
-        } while (condition != 0) {
-            if (conditionTwo == 0) {
-                return message.channel.send("No hay nombres en nuestra base de datos que empiecen por esa letra, por favor cambieselo o pongase otra letra");
-            } else {
-                return message.member.setNickname(randomName);
-            }
+    sessionClient.detectIntent(request, (err, response) => {
+        if (err) {
+            console.error(err);
         }
-
-    }
-
-    if (message.content.startsWith(prefix + "got")) {
-        if (letraNombre = null) {
-            return message.channel.send("No hay nombres en nuestra base de datos que empiecen por esa letra, por favor cambieselo o pongase otra letra");
-        } else {
+        let condition;
+        let randomName;      
+        if (response.queryResult.parameters.fields.entity_of_name.stringValue == "got") {
             randomName = faker.name.findName();
             let random = Math.floor(Math.random() * Math.floor(4));
             let got;
@@ -66,14 +47,8 @@ client.on("message", (message) => {
                     got = "Baratheon";
                     break;
             }
-            return message.member.setNickname(randomName.substr(0, randomName.indexOf(' ')) + " " + got);
-        }
-    }
-
-    if (message.content.startsWith(prefix + "hp")) {
-        if (letraNombre = null) {
-            return message.channel.send("No hay nombres en nuestra base de datos que empiecen por esa letra, por favor cambieselo o pongase otra letra");
-        } else {
+            return member.setNickname(randomName.substr(0, randomName.indexOf(' ')) + " " + got);
+        } else if (response.queryResult.parameters.fields.entity_of_name.stringValue == "hp") {
             randomName = faker.name.findName();
             let random = Math.floor(Math.random() * Math.floor(4));
             let hp;
@@ -91,32 +66,30 @@ client.on("message", (message) => {
                     hp = "Ravenclaw";
                     break;
             }
-            return message.member.setNickname(randomName.substr(0, randomName.indexOf(' ')) + " " + hp);
+            console.log(randomName);
+            return member.setNickname(randomName.substr(0, randomName.indexOf(' ')) + " " + hp);
+        } else {
+            do {
+                randomName = faker.name.findName();
+                let letraNombreRandom = randomName.substr(0, 1);
+                let letraNombre = client.username.substr(0, 1);
+                if (letraNombre == letraNombreRandom && letraNombre != null && letraNombreRandom != null) {
+                    condition = 0;
+                } else {
+                    condition = 1;
+                }
+            } while (condition != 0) {
+                return member.setNickname(randomName);
+            }
+
         }
-    }
+    })
 
-    if (message.content.startsWith(prefix + "help")) {
-        return message.channel.send("Lista de comandos:" +
-            "\n !help: Para volver a abrir este listado" +
-            "\n !hola: Saludas al bot y este te saluda" +
-            "\n !adios: Te despides del bot y este te despide" +
-            "\n !renombrar: El bot te cambia el nombre y apellidos por uno aleatorio" +
-            "\n !got: El bot te cambia el nombre por uno aleatorio y te asigna una casa principal de Juego de Tronos" +
-            "\n !hp: El bot te cambia el nombre por uno aleatorio y te asigna una casa de Harry Potter" +
-            "\n !reportes: Si el bot te fala escribe este comando seguido de un espacio y tu mensaje para poder mejorarlo");
-    }
-    console.log(message.author.lastMessage.content);
+}
 
+client.on("message", (message) => {
 
-    if (message.content.startsWith(prefix + "reportes" + "")) {
-        message.member.setNickname("Gilipollah de mierda");
-        return message.channel.send("Tu eres mongolo, que queja tiene tu de miii!! Te cojo y te revientooo," +
-            "\n  procura que no te vea el coche que te lo quemo contotuputamadre yaa. Ji no? po te cambio el nombre so tonto");
-    }
-
-    if (message.content.startsWith(prefix)) {
-        message.channel.send("Le kiere mete un sufijo o no poneh el prefijo solo?! O me via tene que cagantotusmuerto");
-    }
+    getIntent(message.content, message.author, message.member)
 
 });
 

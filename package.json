@@ -19,7 +19,9 @@
   "homepage": "https://github.com/mcconejero/Botafumeiro#readme",
   "dependencies": {
     "dblapi.js": "^2.3.0",
+    "dialogflow": "^0.8.2",
     "discord.js": "^11.4.2",
+    "discorddialogflow": "^1.0.0",
     "faker": "^4.1.0"
   },
   "devDependencies": {
