@@ -91,7 +91,6 @@ function getIntent(channel, text, client, member) {
 }
 
 client.on("message", (message) => {
-    c
         getIntent(message.channel, message.content, message.author, message.member);
 });
 
